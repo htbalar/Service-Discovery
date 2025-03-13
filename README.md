@@ -105,7 +105,16 @@ cd ollama_chatbot
 source venv/bin/activate
 python app/main.py ollama_service_2 6001
 ```
-**Important**: Both machines must be on the same network to allow the service discovery system to detect them and forward messages between them
+**⚠️ Important Note**:
+
+- Ensure all machines are in the same network.
+- The Service Discovery IP address should be replaced in main.py file of Ollama service.
+
+In `main.py`, update this line:
+```sh
+REGISTRAR_URL = 'http://localhost:5000/service-discovery'
+```
+Replace `<localhost>` and `5000` with the actual IP address and Port of the machine running the service discovery system.
 
 ---
 
