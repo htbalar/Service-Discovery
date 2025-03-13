@@ -1,33 +1,44 @@
-# 🧠 Ollama Chatbot Microservice with Service Discovery
+# 🧠 Ollama Microservice with Dynamic Service Discovery
 
-A **microservices-based chatbot** using **Flask** and **Ollama**, integrated with a **dynamic service discovery system** to enable seamless communication between services.
+A **Flask-based microservice architecture** using **Ollama (Llama 3.2)** for AI processing with **Service Discovery** to enable seamless communication between multiple services.
 
 ---
 
 ## 📌 Features
-- ✅ **Service Discovery** - Services dynamically register, send heartbeats, and communicate without hardcoded addresses.
-- ✅ **Ollama AI Processing** - Chatbot uses **Llama 3.2** for AI-generated responses.
-- ✅ **Automatic Cleanup** - Inactive services are removed after **5 minutes**.
-- ✅ **Message Forwarding** - Microservices can send messages to each other.
+- ✅ **Service Registration**
+- ✅ **Heartbeat Mechanism (Every 2 Minutes)**
+- ✅ **Automatic Cleanup of Inactive Services (5 Minutes)**
+- ✅ **Message Forwarding Between Microservices**
+
+---
+
+## 🛠️ Pre-requisites
+
+1️⃣ Install **Ollama**:
+```sh
+curl -fsSL https://ollama.ai/install.sh | sh
+```
+
+2️⃣ Install **Python 3.8+** and create virtual environments for both **Service Discovery** and **Ollama Microservice**.
 
 ---
 
 ## 📂 Project Structure
 
 ```
- Service-Discovery/         # Service discovery system
+ Service-Discovery/
 │   ├── app/
 │   │   ├── controllers/
-│   │   │   ├── service_discovery_controller.py  # API endpoints
+│   │   │   ├── service_discovery_controller.py
 │   │   ├── services/
-│   │   │   ├── service_discovery_service.py  # Core logic (service registry)
-│   │   ├── main.py  # Runs the service discovery system
+│   │   │   ├── service_discovery_service.py
+│   │   ├── main.py
 │   ├── requirements.txt
 │   ├── venv/
 │
-│── ollama_chatbot/            # AI Chatbot microservice
+│── ollama_chatbot/
 │   ├── app/
-│   │   ├── main.py  # Handles registration, AI processing
+│   │   ├── main.py
 │   ├── requirements.txt
 │   ├── venv/
 │
@@ -36,124 +47,125 @@ A **microservices-based chatbot** using **Flask** and **Ollama**, integrated wit
 
 ---
 
-## 🛠️ Pre-requisites
+## ✅ Installation
 
-### 🔹 1. Install Ollama
-Ollama is required for AI processing. Install it using the following steps:
-
-**Linux & macOS:**
-```sh
-curl -fsSL https://ollama.ai/install.sh | sh
-```
-
-**Windows:**
-Download and install from [Ollama Official Website](https://ollama.ai/).
-
-Ensure Ollama is running:
-```sh
-ollama serve &
-```
-
-### 🔹 2. Install Python & Virtual Environment
-Ensure Python 3.8+ is installed:
-```sh
-python --version
-```
-If not installed, download it from [Python Official Website](https://www.python.org/downloads/).
-
----
-
-## 🛠️ Installation & Setup
-
-### 🔹 1. Clone the Repository
+### 🔹 Step 1: Clone the Repository
 ```sh
 git clone https://github.com/htbalar/Service-Discovery.git
 cd Service-Discovery
 ```
 
-### 🔹 2. Install Dependencies
+### 🔹 Step 2: Install Dependencies
 
 For **Service Discovery**:
 ```sh
 cd Service-Discovery
 python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+source venv/bin/activate
 pip install -r requirements.txt
-deactivate
-cd ..
 ```
 
-For **Ollama Chatbot**:
+For **Ollama Microservice**:
 ```sh
-cd ollama_chatbot
+cd Service-Discovery/ollama_chatbot
 python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+source venv/bin/activate
 pip install -r requirements.txt
-deactivate
-cd ..
 ```
 
 ---
 
-## 🚀 Running the Microservices
+## 🚀 Running the Services
 
-### 1️⃣ **Start the Service Discovery System** (Runs on port **5000**)
+### 1️⃣ Run Service Discovery on Machine 1
 ```sh
 cd Service-Discovery
 source venv/bin/activate
 python app/main.py
 ```
 
-### 2️⃣ **Start the Ollama Chatbot Microservice** (Runs on port **5001**)
+### 2️⃣ Run Ollama Microservice on Machine 2
+When starting the Ollama service, you need to provide a service name and port number as arguments.
+```sh
+python app/main.py <service_name> <port>
+```
+For example:
 ```sh
 cd ollama_chatbot
 source venv/bin/activate
-python app/main.py ollama_chatbot 5001
+python app/main.py ollama_service_1 6000
 ```
+- ollama_service_1: This is the unique name for the service.
+- 6000: This is the port number the service will run on.
+
+### 3️⃣ Run Ollama Microservice on Machine 3
+For Machine 3, use a different name and port number, like this:
+```sh
+cd ollama_chatbot
+source venv/bin/activate
+python app/main.py ollama_service_2 6001
+```
+**Important**: Both machines must be on the same network to allow the service discovery system to detect them and forward messages between them
 
 ---
 
-## 🧪 Testing API Calls
+## 🛠️ API Endpoints
 
-### ✅ **Check Registered Services**
-```sh
-curl -X GET http://localhost:5000/service-discovery/services
-```
+### ✅ **Register a Service**
+This endpoint allows a microservice to register itself with the Service Discovery system. This is essential for communication between different services.
 
-### ✅ **Send a Prompt to the Chatbot**
+**Example Command:**
 ```sh
-curl -X POST http://localhost:5001/process \
+curl -X POST http://<ServiceDiscovery_IP>:5000/service-discovery/register \
      -H "Content-Type: application/json" \
-     -d '{"prompt": "What is AI?"}'
+     -d '{"name": "ollama_service_1", "address": "http://<Machine_1_IP>:6000"}'
 ```
+- Replace `<ServiceDiscovery_IP>` with the IP address of the machine running the Service Discovery system.
+- Replace `<Machine_1_IP>` with the IP of the machine running the first Ollama microservice.
+- Ensure that **both machines are on the same network** (e.g., connected to the same Wi-Fi or LAN).
+
+### ✅ **Get All Registered Services**
+This endpoint fetches a list of all active services registered with the Service Discovery system.
+
+**Example Command:**
+```sh
+curl -X GET http://<ServiceDiscovery_IP>:5000/service-discovery/services
+```
+- This helps to verify if all services are successfully registered.
+
+### ✅ **Send Message to Another Service**
+This endpoint allows one service to forward a message to another registered service.
+
+**Example Command:**
+```sh
+curl -X POST http://<ServiceDiscovery_IP>:5000/service-discovery/forward \
+     -H "Content-Type: application/json" \
+     -d '{"from": "ollama_service_1", "to": "ollama_service_2", "prompt": "What is AI?"}'
+```
+- In this example, `ollama_service_1` sends a message to `ollama_service_2`.
+- Replace the service names as per your setup.
+
+If you're running this system on two different laptops or servers, make sure:
+1. Both machines are connected to the same Wi-Fi or LAN network.
+2. Use the actual local IP addresses (e.g., `192.168.x.x`) instead of placeholders.
+3. Ensure the Service Discovery system is running on one machine (e.g., Machine 3) to act as the central hub for communication.
 
 ---
 
-## 🔄 Stopping the Services
+## ✅ Heartbeat Check (Every 2 Minutes Automatically)
 
-To **stop** all running services, press `CTRL + C` in each terminal.
-
----
-
-## 🎯 Summary
-
-| **Task**  | **Command**  |
-|-------------------|-------------|
-| Install dependencies  | `pip install -r requirements.txt`  |
-| Run Service Discovery | `python app/main.py` (Port **5000**) |
-| Run Ollama Chatbot | `python app/main.py ollama_chatbot 5001` (Port **5001**) |
-| Get Services List | `curl -X GET http://localhost:5000/service-discovery/services` |
-| Forward Message | `curl -X POST http://localhost:5000/service-discovery/forward` |
-| Stop Everything | `CTRL + C`  |
+Each Ollama service will send a heartbeat every **2 minutes**, and if a service fails to send a heartbeat for **5 minutes**, it will be automatically removed from the Service Discovery registry.
 
 ---
+
 
 ## 📝 Contributing
 
-1️⃣ **Fork the repository**
-2️⃣ **Create a feature branch** (`git checkout -b feature-name`)
-3️⃣ **Commit your changes** (`git commit -m "Added new feature"`)
-4️⃣ **Push to GitHub** (`git push origin feature-name`)
-5️⃣ **Create a Pull Request (PR)** 🚀
+1️⃣ Fork the repo
+2️⃣ Create a feature branch (`git checkout -b feature-name`)
+3️⃣ Commit changes (`git commit -m "Added new feature"`)
+4️⃣ Push to GitHub (`git push origin feature-name`)
+5️⃣ Open a Pull Request 🚀
 
 ---
+
