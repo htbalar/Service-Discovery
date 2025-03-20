@@ -61,7 +61,7 @@ For **Service Discovery**:
 ```sh
 cd Service-Discovery
 python -m venv venv
-source venv/bin/activate
+venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
@@ -69,7 +69,7 @@ For **Ollama Microservice**:
 ```sh
 cd Service-Discovery/ollama_chatbot
 python -m venv venv
-source venv/bin/activate
+venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
@@ -80,7 +80,7 @@ pip install -r requirements.txt
 ### 1️⃣ Run Service Discovery on Machine 1
 ```sh
 cd Service-Discovery
-source venv/bin/activate
+venv\Scripts\activate
 python app/main.py
 ```
 
@@ -92,7 +92,7 @@ python app/main.py <service_name> <port>
 For example:
 ```sh
 cd ollama_chatbot
-source venv/bin/activate
+venv\Scripts\activate
 python app/main.py ollama_service_1 6000
 ```
 - ollama_service_1: This is the unique name for the service.
@@ -102,7 +102,7 @@ python app/main.py ollama_service_1 6000
 For Machine 3, use a different name and port number, like this:
 ```sh
 cd ollama_chatbot
-source venv/bin/activate
+venv\Scripts\activate
 python app/main.py ollama_service_2 6001
 ```
 **⚠️ Important Note**:
